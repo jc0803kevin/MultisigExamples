@@ -99,7 +99,7 @@ public class MultisigPresentation {
 
         // Add outputs to the person receiving bitcoins
         Address receiverAddress = new Address(params, "n2cWhs5sbWFCwzuuWWsVM9ubPwykGtX75T");
-        Coin charge = Coin.valueOf(20000); // 0.1 mBTC
+        Coin charge = Coin.valueOf(1000000); // 0.1 mBTC
         Script outputScript = ScriptBuilder.createOutputScript(receiverAddress);
         spendTx.addOutput(charge, outputScript);
 
@@ -155,8 +155,8 @@ public class MultisigPresentation {
 
         // Take out the key and sign the signhash
         //ECKey key2 = createKeyFromSha256Passphrase("Super secret key 2");
-//        ECKey key2 = ECKey.fromPrivate(new BigInteger("68123968917867656952640885027449260190826636504009580537802764798766700329220"));
-        ECKey key2 = ECKey.fromPrivate(new BigInteger("64102401986961187973900162212679081334328198710146539384491794427145725009072"));
+        ECKey key2 = ECKey.fromPrivate(new BigInteger("68123968917867656952640885027449260190826636504009580537802764798766700329220"));
+//        ECKey key2 = ECKey.fromPrivate(new BigInteger("64102401986961187973900162212679081334328198710146539384491794427145725009072"));
         secondSignature = key2.sign(sighash);
 
         // Add the second signature to the signature list
@@ -167,7 +167,7 @@ public class MultisigPresentation {
         inputScript = ScriptBuilder.createP2SHMultiSigInputScript(signatureList, redeemScript);
         spendTx.getInput(0).setScriptSig(inputScript);
 
-        System.out.println(byteArrayToHex(spendTx.bitcoinSerialize()));
+        //System.out.println(byteArrayToHex(spendTx.bitcoinSerialize()));
 
         return byteArrayToHex(spendTx.bitcoinSerialize());
     }

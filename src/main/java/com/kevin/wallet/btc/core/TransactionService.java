@@ -22,17 +22,20 @@ public class TransactionService {
 
     static final NetworkParameters params = TestNet3Params.get();
 
-    public  byte[] createTransaction(List<UnSpentUtxo> unSpentUtxos, List<BasicTxOutput> outputs){
+    public  byte[] createTransaction(List<UnSpentUtxo> inputs, List<BasicTxOutput> outputs){
         Transaction spendTx = new Transaction(params);
+        Coin feeCoin = Coin.ZERO;
 
-        for (UnSpentUtxo unSpentUtxo : unSpentUtxos) {
+        //发送
+        for (UnSpentUtxo unSpentUtxo : inputs) {
             Sha256Hash hash = Sha256Hash.wrap(unSpentUtxo.getHash());
             Address address = Address.fromBase58(params, unSpentUtxo.getAddress());
+            Script script = ScriptBuilder.createOutputScript(address);
 
-            Script script = new ScriptBuilder().createOutputScript(address);
             spendTx.addInput(hash, unSpentUtxo.getTxN(), script);
         }
 
+        //接收
         for (BasicTxOutput output : outputs) {
             Address receiverAddress = new Address(params, output.getAddress());
             Coin charge = Coin.parseCoin(output.getAmount().toPlainString());
@@ -69,7 +72,7 @@ public class TransactionService {
             in.setScriptSig(script);
 
         }
-        return HexUtils.byteArrayToHex( transaction.bitcoinSerialize());
+        return HexUtils.byteArrayToHex(transaction.bitcoinSerialize());
     }
 
 
@@ -92,16 +95,13 @@ public class TransactionService {
         Iterator<ScriptChunk> iterator = scriptChunks.iterator();
         Script redeemScript = null;
 
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             ScriptChunk chunk = iterator.next();
 
-            if (iterator.hasNext() && chunk.opcode != 0)
-            {
+            if (iterator.hasNext() && chunk.opcode != 0) {
                 TransactionSignature transactionSignarture = TransactionSignature.decodeFromBitcoin(chunk.data, false);
                 signatureList.add(transactionSignarture);
-            } else
-            {
+            } else {
                 redeemScript = new Script(chunk.data);
             }
         }
@@ -112,8 +112,8 @@ public class TransactionService {
 
         // Take out the key and sign the signhash
         //ECKey key2 = createKeyFromSha256Passphrase("Super secret key 2");
-//        ECKey key2 = ECKey.fromPrivate(new BigInteger("68123968917867656952640885027449260190826636504009580537802764798766700329220"));
-        ECKey key2 = ECKey.fromPrivate(new BigInteger("64102401986961187973900162212679081334328198710146539384491794427145725009072"));
+        ECKey key2 = ECKey.fromPrivate(new BigInteger("68123968917867656952640885027449260190826636504009580537802764798766700329220"));
+//        ECKey key2 = ECKey.fromPrivate(new BigInteger("64102401986961187973900162212679081334328198710146539384491794427145725009072"));
         secondSignature = key2.sign(sighash);
 
         // Add the second signature to the signature list
