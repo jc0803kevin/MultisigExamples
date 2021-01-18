@@ -93,14 +93,14 @@ public class TestMultiSign2 {
         //签名
         Script payingToMultisigTxoutScriptPubKey = multisigOutput.getScriptPubKey();
         System.out.println("payingToMultisigTxoutScriptPubKey: " + payingToMultisigTxoutScriptPubKey);
-        checkState(payingToMultisigTxoutScriptPubKey.isSentToMultiSig());
+        //checkState(payingToMultisigTxoutScriptPubKey.isSentToMultiSig());
         Sha256Hash sighash = redeemingMultisigTx1.hashForSignature(0, payingToMultisigTxoutScriptPubKey, Transaction.SigHash.ALL, false);
         partyASignature = key1.sign(sighash);
 
     }
 
     public void createRawTransactionForMultisigRedeemingByB(List<UnSpentUtxo> inputs, List<BasicTxOutput> outputs){
-
+        redeemingMultisigTx2 = new Transaction(params);
         for (UnSpentUtxo unSpentUtxo : inputs) {
             Sha256Hash hash = Sha256Hash.wrap(unSpentUtxo.getHash());
             Address address = Address.fromBase58(params, unSpentUtxo.getAddress());
@@ -117,6 +117,7 @@ public class TestMultiSign2 {
             redeemingMultisigTx2.addOutput(charge, outputScript);
         }
 
+        redeemMultisigTxInput = redeemingMultisigTx2.getInput(0);
 
         Script payingToMultisigTxoutScriptPubKey = multisigOutput.getScriptPubKey();
         Sha256Hash sighash = redeemingMultisigTx2.hashForSignature(0, payingToMultisigTxoutScriptPubKey, Transaction.SigHash.ALL, false);
